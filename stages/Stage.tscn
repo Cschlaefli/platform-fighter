@@ -1,0 +1,46 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://stages/TestTiles.tres" type="TileSet" id=1]
+[ext_resource path="res://stages/PlatformM.tscn" type="PackedScene" id=2]
+
+[sub_resource type="PhysicsMaterial" id=2]
+bounce = 0.6
+
+[sub_resource type="CircleShape2D" id=1]
+radius = 30.0
+
+[node name="Stage" type="Node2D"]
+script = null
+
+[node name="SolidMap" type="TileMap" parent="."]
+tile_set = ExtResource( 1 )
+format = 1
+tile_data = PackedIntArray( 262137, 0, 131079, 262138, 0, 2, 262139, 0, 2, 262140, 0, 2, 262141, 0, 2, 262142, 0, 2, 262143, 0, 2, 196608, 0, 2, 196609, 0, 2, 196610, 0, 2, 196611, 0, 2, 196612, 0, 2, 196613, 0, 2, 196614, 0, 131080 )
+script = null
+
+[node name="GrabMap" type="TileMap" parent="."]
+format = 1
+script = null
+
+[node name="StageCam" type="Camera2D" parent="."]
+current = true
+script = null
+
+[node name="RigidBody2D" type="RigidBody2D" parent="."]
+position = Vector2( -227.492, -58.8074 )
+physics_material_override = SubResource( 2 )
+gravity_scale = -1.0
+script = null
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
+shape = SubResource( 1 )
+script = null
+
+[node name="PlatformM" parent="." instance=ExtResource( 2 )]
+position = Vector2( 0, -98 )
+
+[node name="PlatformML" parent="." instance=ExtResource( 2 )]
+position = Vector2( -256, 48 )
+
+[node name="PlatformMR" parent="." instance=ExtResource( 2 )]
+position = Vector2( 256, 48 )
