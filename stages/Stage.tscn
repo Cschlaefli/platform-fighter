@@ -2,12 +2,8 @@
 
 [ext_resource path="res://stages/TestTiles.tres" type="TileSet" id=1]
 [ext_resource path="res://stages/PlatformM.tscn" type="PackedScene" id=2]
-
-[sub_resource type="PhysicsMaterial" id=2]
-bounce = 0.6
-
-[sub_resource type="CircleShape2D" id=1]
-radius = 30.0
+[ext_resource path="res://player/IngamePlayer.tscn" type="PackedScene" id=3]
+[ext_resource path="res://stages/Debug.gd" type="Script" id=4]
 
 [node name="Stage" type="Node2D"]
 script = null
@@ -26,16 +22,6 @@ script = null
 current = true
 script = null
 
-[node name="RigidBody2D" type="RigidBody2D" parent="."]
-position = Vector2( -227.492, -58.8074 )
-physics_material_override = SubResource( 2 )
-gravity_scale = -1.0
-script = null
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
-shape = SubResource( 1 )
-script = null
-
 [node name="PlatformM" parent="." instance=ExtResource( 2 )]
 position = Vector2( 0, -98 )
 
@@ -44,3 +30,19 @@ position = Vector2( -256, 48 )
 
 [node name="PlatformMR" parent="." instance=ExtResource( 2 )]
 position = Vector2( 256, 48 )
+
+[node name="IngamePlayer" parent="." instance=ExtResource( 3 )]
+position = Vector2( -277.593, -83.2778 )
+
+[node name="Debug" type="CanvasLayer" parent="."]
+script = ExtResource( 4 )
+
+[node name="Frame" type="Label" parent="Debug"]
+visible = false
+margin_right = 182.0
+margin_bottom = 14.0
+text = "FFFFFFFFFFFFFFFFFFFFFFFFFF"
+script = null
+__meta__ = {
+"_edit_use_anchors_": false
+}

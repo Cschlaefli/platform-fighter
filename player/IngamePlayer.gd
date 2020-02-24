@@ -4,6 +4,7 @@ class_name IngamePlayer
 var display_name : String
 var player_profile : PlayerProfile
 var player_number : int = 1
+var device : int = 0
 var player_character : PackedScene
 
 var live_character : Character
@@ -64,9 +65,11 @@ func set_controls(scheme = []) :
 		if prefix in str(action) :
 			InputMap.erase_action(action)
 	
-	for action in InputMap.get_actions() : print(action)
-	
-	pass
+	if player_profile :
+		InputScheme.set_ingame_controls(player_number, device, player_profile.control_scheme)
+	else :
+		InputScheme.set_ingame_controls(player_number, device)
+
 
 func die():
 	lives -= 1
@@ -77,5 +80,6 @@ func die():
 func spawn():
 	#set spawn pos
 	live_character = player_character.instance()
+	live_character.input_prefix = player_format % player_number
 	add_child(live_character)
 
