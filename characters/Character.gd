@@ -17,31 +17,29 @@ var move_strength_y = 0
 func _unhandled_input(event):
 	var stick = event as InputEventJoypadMotion
 	var btn = event as InputEventJoypadButton
-	if stick :
-		var move_prev_x = move_in.x
-		var move_prev_y = move_in.y
-		move_in.y = Input.get_action_strength(input_prefix + "move_down") - Input.get_action_strength(input_prefix + "move_up")
-		move_in.x = Input.get_action_strength(input_prefix + "move_right") - Input.get_action_strength(input_prefix + "move_left")
-		tilt_in.y = Input.get_action_strength(input_prefix + "tilt_down") - Input.get_action_strength(input_prefix + "tilt_up")
-		tilt_in.x = Input.get_action_strength(input_prefix + "tilt_right") - Input.get_action_strength(input_prefix + "tilt_left")
-		
+	var move_prev_x = move_in.x
+	var move_prev_y = move_in.y
+	move_in.y = Input.get_action_strength(input_prefix + "move_down") - Input.get_action_strength(input_prefix + "move_up")
+	move_in.x = Input.get_action_strength(input_prefix + "move_right") - Input.get_action_strength(input_prefix + "move_left")
+	tilt_in.y = Input.get_action_strength(input_prefix + "tilt_down") - Input.get_action_strength(input_prefix + "tilt_up")
+	tilt_in.x = Input.get_action_strength(input_prefix + "tilt_right") - Input.get_action_strength(input_prefix + "tilt_left")
+	
 #		if move_in.x > 0 :
 #			move_prev_x = clamp(move_prev_x, 0, 1)
 #		elif move_in.x < 0 :
 #			move_prev_x = clamp(move_prev_x, -1, 0)
-		
-		move_strength_x = move_in.x - move_prev_x
-		if move_in.x < 0 : move_strength_x *= -1
-		move_strength_y = abs(move_prev_y - move_in.y)
+	
+	move_strength_x = move_in.x - move_prev_x
+	if move_in.x < 0 : move_strength_x *= -1
+	move_strength_y = abs(move_prev_y - move_in.y)
 #		if move_strength_x > .1 : print("dash input")
-		#probably needs adjustment for some stuff
+	#probably needs adjustment for some stuff
 #		if abs(move_in.x) < deadzone : move_in.x = 0
 #		if abs(move_in.y) < deadzone : move_in.y = 0
-	if btn :
-		if btn.is_action_pressed(input_prefix + "jump") :
-			_set_state(states.jump)
-		if btn.is_action_pressed(input_prefix + "short_jump") :
-			_set_state(states.jump)
+	if event.is_action_pressed(input_prefix + "jump") :
+		_set_state(states.jump)
+	if event.is_action_pressed(input_prefix + "short_jump") :
+		_set_state(states.jump)
 
 ######################
 #Movement variables###
