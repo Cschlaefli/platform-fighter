@@ -6,15 +6,18 @@ var player_profile : PlayerProfile
 var player_number : int = 1
 var device : int = 0
 var player_character : PackedScene
+var tap_jump = false
+var tap_dash = false
 
 var live_character : Character
 
 var lives : int = 3
 
 func test_only():
-	player_character = ResourceLoader.load("res://characters/Character.tscn")
+	player_character = ResourceLoader.load("res://characters/Cloner/Cloner.tscn")
 
 func _ready():
+	$Debug.ingame_player = self
 	set_controls()
 	test_only()
 	spawn()
@@ -76,10 +79,18 @@ func die():
 	#if lives <= 0 : emit_signal("loss", self)
 	live_character.queue_free()
 	live_character = null
+	yield(get_tree().create_timer(1),"timeout")
+	spawn()
 
 func spawn():
 	#set spawn pos
 	live_character = player_character.instance()
 	live_character.input_prefix = player_format % player_number
 	add_child(live_character)
+#	call_deferred("connect_char")
+	var s = self
+	live_character.connect("die", Callable(s, "die"))
 
+
+func connect_char():
+	pass

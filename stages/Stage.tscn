@@ -1,9 +1,16 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://stages/TestTiles.tres" type="TileSet" id=1]
 [ext_resource path="res://stages/PlatformM.tscn" type="PackedScene" id=2]
 [ext_resource path="res://player/IngamePlayer.tscn" type="PackedScene" id=3]
 [ext_resource path="res://stages/Debug.gd" type="Script" id=4]
+[ext_resource path="res://stages/DeathZone.gd" type="Script" id=5]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 532.715, 25 )
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 25, 500 )
 
 [node name="Stage" type="Node2D"]
 script = null
@@ -46,3 +53,30 @@ script = null
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="BlastZone" type="Node2D" parent="."]
+script = null
+
+[node name="Death" type="Area2D" parent="BlastZone"]
+script = ExtResource( 5 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BlastZone/Death"]
+position = Vector2( 0, -321.36 )
+shape = SubResource( 1 )
+script = null
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="BlastZone/Death"]
+position = Vector2( -532, 0 )
+shape = SubResource( 2 )
+script = null
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="BlastZone/Death"]
+position = Vector2( 535.874, 0 )
+shape = SubResource( 2 )
+script = null
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="BlastZone/Death"]
+position = Vector2( 0, 319.088 )
+shape = SubResource( 1 )
+script = null
+[connection signal="body_entered" from="BlastZone/Death" to="BlastZone/Death" method="_on_Death_body_entered"]

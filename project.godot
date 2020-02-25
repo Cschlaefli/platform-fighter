@@ -26,8 +26,8 @@ _global_script_classes=[ {
 } ]
 _global_script_class_icons={
 "Character": "",
-"PlayerProfile": "",
-"IngamePlayer": ""
+"IngamePlayer": "",
+"PlayerProfile": ""
 }
 
 [application]

@@ -82,7 +82,7 @@ func key_helper_axis(prefix, device, action, action_name, deadzone = .05):
 		InputMap.action_add_event(prefix+action_name, key)
 
 
-func set_ingame_controls(player_number : int, device : int, actions = default_kb) :
+func set_ingame_controls(player_number : int, device : int, actions = default_gc) :
 	var prefix = player_format % player_number
 	
 	if actions["format"] == "controller" :

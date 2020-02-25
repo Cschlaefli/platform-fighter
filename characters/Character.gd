@@ -5,7 +5,8 @@ class_name Character
 var character_name := "Test"
 var damage := .0
 var input_prefix = ""
-
+var tap_jump = false
+var tap_dash = false
 
 var move_in = Vector2.ZERO
 var tilt_in = Vector2.ZERO
@@ -13,6 +14,11 @@ var deadzone = .2
 
 var move_strength_x = 0
 var move_strength_y = 0
+
+signal die
+
+func die():
+	emit_signal("die")
 
 func _unhandled_input(event):
 	var stick = event as InputEventJoypadMotion
@@ -40,10 +46,36 @@ func _unhandled_input(event):
 		_set_state(states.jump)
 	if event.is_action_pressed(input_prefix + "short_jump") :
 		_set_state(states.jump)
+	if event.is_action(input_prefix + "attack") :
+		attack()
+	if event.is_action(input_prefix + "special") :
+		special()
+	if event.is_action(input_prefix + "grab"):
+		grab()
+	if event.is_action(input_prefix + "shield"):
+		shield()
+
+
+###character impemented
+
+func shield():
+	pass
+
+func grab():
+	pass
+
+func attack():
+	pass
+
+func special():
+	pass
 
 ######################
 #Movement variables###
 ######################
+
+func init_stats():
+	pass
 
 var velocity := Vector2.ZERO
 
@@ -79,7 +111,7 @@ var facing = -1
 ########################################
 
 func _ready():
-	Engine.time_scale = 1
+	init_stats()
 	_add_states()
 	_set_state(states.fall)
 

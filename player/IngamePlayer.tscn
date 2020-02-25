@@ -1,6 +1,47 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://player/IngamePlayer.gd" type="Script" id=1]
+[ext_resource path="res://player/IngamePlayerUI.gd" type="Script" id=2]
 
 [node name="IngamePlayer" type="Node2D"]
 script = ExtResource( 1 )
+
+[node name="Debug" type="CanvasLayer" parent="."]
+script = ExtResource( 2 )
+
+[node name="Control" type="Control" parent="Debug"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = null
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Stats" type="HBoxContainer" parent="Debug/Control"]
+margin_left = 282.76
+margin_top = 550.41
+margin_right = 322.76
+margin_bottom = 590.41
+script = null
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Name" type="Label" parent="Debug/Control/Stats"]
+margin_top = 13.0
+margin_bottom = 27.0
+script = null
+
+[node name="Damage" type="Label" parent="Debug/Control/Stats"]
+margin_left = 4.0
+margin_top = 13.0
+margin_right = 4.0
+margin_bottom = 27.0
+script = null
+
+[node name="Stocks" type="Label" parent="Debug/Control/Stats"]
+margin_left = 8.0
+margin_top = 13.0
+margin_right = 8.0
+margin_bottom = 27.0
+script = null
