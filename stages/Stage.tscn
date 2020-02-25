@@ -18,7 +18,7 @@ script = null
 [node name="SolidMap" type="TileMap" parent="."]
 tile_set = ExtResource( 1 )
 format = 1
-tile_data = PackedIntArray( 262137, 0, 131079, 262138, 0, 2, 262139, 0, 2, 262140, 0, 2, 262141, 0, 2, 262142, 0, 2, 262143, 0, 2, 196608, 0, 2, 196609, 0, 2, 196610, 0, 2, 196611, 0, 2, 196612, 0, 2, 196613, 0, 2, 196614, 0, 131080 )
+tile_data = PackedInt32Array( 262137, 0, 131079, 262138, 0, 2, 262139, 0, 2, 262140, 0, 2, 262141, 0, 2, 262142, 0, 2, 262143, 0, 2, 196608, 0, 2, 196609, 0, 2, 196610, 0, 2, 196611, 0, 2, 196612, 0, 2, 196613, 0, 2, 196614, 0, 131080 )
 script = null
 
 [node name="GrabMap" type="TileMap" parent="."]
@@ -61,7 +61,7 @@ script = null
 script = ExtResource( 5 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="BlastZone/Death"]
-position = Vector2( 0, -321.36 )
+position = Vector2( 3.34, -500 )
 shape = SubResource( 1 )
 script = null
 
@@ -76,7 +76,7 @@ shape = SubResource( 2 )
 script = null
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="BlastZone/Death"]
-position = Vector2( 0, 319.088 )
+position = Vector2( 0, 500 )
 shape = SubResource( 1 )
 script = null
 [connection signal="body_entered" from="BlastZone/Death" to="BlastZone/Death" method="_on_Death_body_entered"]

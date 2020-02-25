@@ -10,24 +10,24 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "KinematicBody2D",
-"class": "Character",
-"language": "GDScript",
+"class": @"Character",
+"language": @"GDScript",
 "path": "res://characters/Character.gd"
 }, {
 "base": "Node2D",
-"class": "IngamePlayer",
-"language": "GDScript",
+"class": @"IngamePlayer",
+"language": @"GDScript",
 "path": "res://player/IngamePlayer.gd"
 }, {
 "base": "Node",
-"class": "PlayerProfile",
-"language": "GDScript",
+"class": @"PlayerProfile",
+"language": @"GDScript",
 "path": "res://player/PlayerProfile.gd"
 } ]
 _global_script_class_icons={
-"Character": "",
-"IngamePlayer": "",
-"PlayerProfile": ""
+@"Character": "",
+@"PlayerProfile": "",
+@"IngamePlayer": ""
 }
 
 [application]
@@ -40,6 +40,12 @@ config/icon="res://icon.png"
 
 InputScheme="*res://globals/InputScheme.gd"
 Global="*res://globals/Global.gd"
+
+[display]
+
+window/size/width=1280
+window/size/height=720
+window/stretch/aspect="keep"
 
 [input]
 
