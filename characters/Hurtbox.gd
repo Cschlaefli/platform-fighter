@@ -6,7 +6,7 @@ var active = false
 var damage = 5
 var knockback = Vector2.LEFT * Global.CELL_WIDTH * 20
 var knockback_growth = 1
-var hitstun = .02
+export var hitstun = 8
 var source = self
 var meta = {}
 

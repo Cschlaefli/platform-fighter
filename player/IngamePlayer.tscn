@@ -16,6 +16,29 @@ margin_left = -5.64679
 margin_top = 1.02667
 margin_right = -5.64673
 margin_bottom = 1.02667
+mouse_filter = 1
+script = null
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="UseController" type="Button" parent="Debug/Control"]
+margin_left = 110.771
+margin_top = 674.699
+margin_right = 140.771
+margin_bottom = 694.699
+text = "GC"
+script = null
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="UseKeyboard" type="Button" parent="Debug/Control"]
+margin_left = 152.182
+margin_top = 674.644
+margin_right = 181.182
+margin_bottom = 694.644
+text = "KB"
 script = null
 __meta__ = {
 "_edit_use_anchors_": false
@@ -59,26 +82,5 @@ margin_top = 36.0
 margin_right = 94.0
 margin_bottom = 50.0
 script = null
-
-[node name="UseController" type="Button" parent="Debug/Control"]
-margin_left = 110.771
-margin_top = 674.699
-margin_right = 140.771
-margin_bottom = 694.699
-text = "GC"
-script = null
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="UseKeyboard" type="Button" parent="Debug/Control"]
-margin_left = 138.464
-margin_top = 677.216
-margin_right = 150.464
-margin_bottom = 697.216
-text = "KB"
-script = null
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[connection signal="pressed" from="Debug/Control/UseController" to="." method="_on_UseController_pressed"]
 [connection signal="pressed" from="Debug/Control/UseKeyboard" to="." method="_on_UseKeyboard_pressed"]

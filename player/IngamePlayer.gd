@@ -3,8 +3,8 @@ class_name IngamePlayer
 
 var display_name : String
 var player_profile : PlayerProfile
-var player_number : int = 1
-var device : int = 0
+export var player_number : int = 0
+export var device : int = 0
 var player_character : PackedScene
 var tap_jump = false
 var tap_dash = false
@@ -64,7 +64,8 @@ var player_format = "p%s_"
 
 
 
-func set_controls(scheme = InputScheme.default_kb) :
+func set_controls(scheme = InputScheme.default_gc) :
+	if player_number == 1 : scheme = InputScheme.default_kb
 	var prefix = player_format % player_number
 	for action in InputMap.get_actions() :
 		if prefix in str(action) :
@@ -87,6 +88,7 @@ func die():
 func spawn():
 	#set spawn pos
 	live_character = player_character.instance()
+	live_character.hitbool = player_number + 9
 	live_character.input_prefix = player_format % player_number
 	add_child(live_character)
 #	call_deferred("connect_char")
@@ -99,4 +101,7 @@ func connect_char():
 
 
 func _on_UseKeyboard_pressed():
-	pass # Replace with function body.
+	set_controls(InputScheme.default_kb) 
+
+func _on_UseController_pressed():
+	set_controls(InputScheme.default_gc)

@@ -7,6 +7,8 @@ var input_prefix = ""
 var tap_jump = false
 var tap_dash = false
 
+var hitbool = 9
+
 var move_in = Vector2.ZERO
 var tilt_in = Vector2.ZERO
 var deadzone = .2
@@ -42,9 +44,11 @@ func _unhandled_input(event):
 #		if abs(move_in.x) < deadzone : move_in.x = 0
 #		if abs(move_in.y) < deadzone : move_in.y = 0
 	if event.is_action_pressed(input_prefix + "jump") :
-		_set_state(states.jump)
+		if !state in not_jumpcancelable :
+			_set_state(states.jump)
 	if event.is_action_pressed(input_prefix + "short_jump") :
-		_set_state(states.jump)
+		if !state in not_jumpcancelable :
+			_set_state(states.jump)
 	if event.is_action_pressed(input_prefix + "attack") :
 		attack()
 	if event.is_action_pressed(input_prefix + "special") :
@@ -55,7 +59,9 @@ func _unhandled_input(event):
 		shield_timer.start(tech_input_window)
 		shield()
 
-var tech_input_window = .25
+var not_jumpcancelable
+
+var tech_input_window = 20
 onready var shield_timer = $Timers/ShieldTimer
 
 ###character impemented
@@ -104,7 +110,7 @@ var walk_speed := 1.0 * Global.CELL_WIDTH
 var air_speed := 5.0 * Global.CELL_WIDTH
 
 var dash_speed := 7.25 * Global.CELL_WIDTH
-var dash_time := .25
+var dash_time := 18
 
 var air_accel = 20 * Global.CELL_WIDTH
 var ground_accel = 20 * Global.CELL_WIDTH
@@ -114,10 +120,16 @@ var ground_friction = 15 * Global.CELL_WIDTH
 
 var max_jumps := 1
 
+################################
+##### state vars################
+################################
+
 var jumps := max_jumps
 var grounded = true
 
 var facing = -1
+var invulnerable = false
+var intangible = false
 
 ########################################
 ############State Logistics###########
@@ -126,6 +138,8 @@ var facing = -1
 func _ready():
 	init_stats()
 	_add_states()
+	not_jumpcancelable = [states.tech, states.grounded, states.roll_forward, states.roll_back, states.hitstun]
+	
 	_set_state(states.fall)
 
 func _add_states():
@@ -147,13 +161,34 @@ func _add_states():
 	_add_state("land")
 	_add_state("slide")
 	_add_state("turn")
+	_add_state("tech")
+	_add_state("roll_forward")
+	_add_state("roll_back")
+	_add_state("getup_attack")
 
 func _state_logic(delta:float):
 	delta *= Engine.time_scale
+	_check_invuln()
 	_check_grounded()
 	_handle_gravity(delta)
 	_handle_move_input(delta)
 	_apply_movement(delta)
+
+func _check_invuln():
+	if invulnerable :
+		modulate = Color.green
+		$Hitbox.set_collision_layer_bit(hitbool, false)
+	else :
+		$Hitbox.set_collision_layer_bit(hitbool, true)
+	if intangible :
+		modulate = Color.red
+		set_collision_layer_bit(4, false)
+		set_collision_mask_bit(4, false)
+	else :
+		set_collision_mask_bit(4, true)
+		set_collision_layer_bit(4, true)
+	if !intangible and !invulnerable :
+		modulate = Color.white
 
 func _check_grounded() :
 	grounded = $GroundCheck.is_colliding()
@@ -240,38 +275,56 @@ onready var dash_timer = $Timers/DashTimer
 onready var tech_timer = $Timers/TechTimer
 var tech_window = .1
 
+func roll_helper(dir) :
+	if sign(dir) == facing :
+		return states.roll_forward
+	else :
+		return states.roll_back
 
 func _get_transition(delta:float):
-	
 	if grounded :
-		
+		intangible = false
 		var dir = sign(move_in.x)
-		
 		match state:
+			states.roll_forward :
+				intangible = true
+				if roll_timer.time_left <= (roll_forward_invulnerable_end - roll_forward_time)/60 :
+					invulnerable = false
+				if roll_timer.is_stopped():
+					return states.stand
+			states.roll_back :
+				intangible = true
+				if roll_timer.time_left <= (roll_back_invulnerable_end- roll_back_time)/60 :
+					invulnerable = false
+				if roll_timer.is_stopped():
+					return states.stand
+			states.tech :
+				intangible = true
+				if roll_timer.is_stopped():
+					invulnerable = false
+					intangible = false
+					return states.stand
 			states.grounded :
+				invulnerable = true
+				intangible = true
 				if !tech_timer.is_stopped() :
 					if Input.is_action_pressed(input_prefix+ "shield") && !shield_timer.is_stopped() :
 						if move_in.x > input_sensitivity :
-							velocity.x = 500
-							return states.slide
-							pass #roll right
+							return roll_helper(1)
 						elif move_in.x < -input_sensitivity :
-							velocity.x = 500
-							return states.slide
-							pass #roll left
+							return roll_helper(1)
 						else :
+							invulnerable = false
 							velocity.x = 0
-							return states.slide
-							pass #tech in place
+							return states.stand
 				else :
+					invulnerable = false
 					if move_in.x > input_sensitivity :
-						velocity.x = 500
-						return states.slide
-						pass #roll right
+						return roll_helper(1)
 					if move_in.x < -input_sensitivity :
-						velocity.x = 500
-						return states.slide
-						pass #roll left
+						return roll_helper(-1)
+					if Input.is_action_pressed(input_prefix+"attack"):
+						pass
 			states.hitstun :
 				if hitstun_timer.is_stopped() :
 					return states.slide
@@ -287,7 +340,7 @@ func _get_transition(delta:float):
 			states.jump, states.fall, states.fastfall, states.air_attack :
 				return states.land
 			states.helpless_fall :
-				tech_timer.start()
+				tech_timer.start(tech_input_window)
 				return states.grounded
 			states.dash :
 				if dash_timer.is_stopped():
@@ -311,6 +364,7 @@ func _get_transition(delta:float):
 				elif abs(velocity.x) < 10 :
 					return states.stand
 	else :
+		intangible = true
 		match state :
 			states.hitstun :
 				if hitstun_timer.is_stopped() :
@@ -328,6 +382,9 @@ func _get_transition(delta:float):
 
 func _exit_state(old_state, new_state):
 	match old_state:
+		states.roll_back, states.roll_forward, states.tech, states.grounded :
+			invulnerable = false
+			intangible = false
 		states.jump :
 			$GroundCheck.enabled = true
 #		states.turn :
@@ -340,8 +397,37 @@ func _exit_state(old_state, new_state):
 			dash_timer.start(dash_time)
 			velocity.x = dash_speed * sign(move_in.x)
 
+onready var roll_timer = $Timers/RollTimer
+
+var roll_forward_distance = Global.CELL_WIDTH * 2
+var roll_back_distance = Global.CELL_WIDTH * 2
+
+var roll_forward_invulnerable_end = 15
+var roll_back_invulnerable_end = 15
+
+var roll_forward_time = 17
+var roll_back_time = 17
+var tech_time = 3
+
 func _enter_state(new_state, old_state):
 	match new_state:
+		states.roll_forward :
+			invulnerable = true
+			intangible = true
+			velocity.x = roll_back_distance * (60/roll_forward_time) * facing
+			roll_timer.start(roll_forward_time)
+		states.roll_back :
+			invulnerable = true
+			intangible = true
+			velocity.x = roll_back_distance * (60/roll_back_time) * facing
+			roll_timer.start(roll_back_time)
+		states.tech :
+			invulnerable = true
+			intangible = true
+			velocity.x = 0
+			roll_timer.start(tech_time)
+		states.getup_attack :
+			pass
 		states.jump :
 			if grounded :
 				$GroundCheck.enabled = false
@@ -349,7 +435,7 @@ func _enter_state(new_state, old_state):
 					velocity.y = -sqrt(2*gravity* jump_height * Global.CELL_HEIGHT *Engine.time_scale)
 				if Input.is_action_pressed(input_prefix + "short_jump") :
 					velocity.y = -sqrt(2*gravity* short_jump_height * Global.CELL_HEIGHT * Engine.time_scale)
-				$Timers/JumpTimer.start(.018)
+				$Timers/JumpTimer.start(6)
 			elif jumps > 0 and $Timers/JumpTimer.time_left == 0 :
 				jumps -= 1
 				velocity.y = -sqrt(2*gravity*double_jump_height * Global.CELL_HEIGHT) *Engine.time_scale

@@ -1,18 +1,22 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://characters/Cloner/Cloner.gd" type="Script" id=1]
 [ext_resource path="res://characters/Character.tscn" type="PackedScene" id=2]
-[ext_resource path="res://characters/Hitbox.tscn" type="PackedScene" id=3]
+[ext_resource path="res://assets/Spritesheet/spritesheet_players.png" type="Texture2D" id=3]
 
 [sub_resource type="CapsuleShape2D" id=1]
-radius = 15.0
-height = 30.0
+radius = 5.0
+height = 50.0
 
 [sub_resource type="CircleShape2D" id=2]
 radius = 12.0461
 
 [sub_resource type="CircleShape2D" id=3]
 radius = 14.7032
+
+[sub_resource type="AtlasTexture" id=4]
+atlas = ExtResource( 3 )
+region = Rect2( 115, 1, 42, 47 )
 
 [node name="Cloner" instance=ExtResource( 2 )]
 script = ExtResource( 1 )
@@ -23,7 +27,7 @@ shape = SubResource( 1 )
 [node name="Abilities" type="Node2D" parent="." index="4"]
 script = null
 
-[node name="Hitbox" parent="." index="5" instance=ExtResource( 3 )]
+[node name="Hitbox" parent="." index="5"]
 modulate = Color( 0.980392, 0.0823529, 0.0156863, 1 )
 collision_layer = 512
 
@@ -41,4 +45,9 @@ script = null
 position = Vector2( -1.16261, 17.7098 )
 shape = SubResource( 2 )
 script = null
-[connection signal="hit" from="Hitbox" to="." method="_on_hit"]
+
+[node name="Sprite" type="Sprite" parent="." index="6"]
+position = Vector2( -1.50942, 1.13206 )
+scale = Vector2( 1.03594, 1.29725 )
+texture = SubResource( 4 )
+script = null
