@@ -1,7 +1,6 @@
 extends KinematicBody2D
 class_name Character
 
-
 var character_name := "Test"
 var damage := .0
 var input_prefix = ""
@@ -21,8 +20,8 @@ func die():
 	emit_signal("die")
 
 func _unhandled_input(event):
-	var stick = event as InputEventJoypadMotion
-	var btn = event as InputEventJoypadButton
+#	var stick = event as InputEventJoypadMotion
+#	var btn = event as InputEventJoypadButton
 	var move_prev_x = move_in.x
 	var move_prev_y = move_in.y
 	move_in.y = Input.get_action_strength(input_prefix + "move_down") - Input.get_action_strength(input_prefix + "move_up")
@@ -46,15 +45,18 @@ func _unhandled_input(event):
 		_set_state(states.jump)
 	if event.is_action_pressed(input_prefix + "short_jump") :
 		_set_state(states.jump)
-	if event.is_action(input_prefix + "attack") :
+	if event.is_action_pressed(input_prefix + "attack") :
 		attack()
-	if event.is_action(input_prefix + "special") :
+	if event.is_action_pressed(input_prefix + "special") :
 		special()
-	if event.is_action(input_prefix + "grab"):
+	if event.is_action_pressed(input_prefix + "grab"):
 		grab()
-	if event.is_action(input_prefix + "shield"):
+	if event.is_action_pressed(input_prefix + "shield"):
+		shield_timer.start(tech_input_window)
 		shield()
 
+var tech_input_window = .25
+onready var shield_timer = $Timers/ShieldTimer
 
 ###character impemented
 
@@ -70,6 +72,14 @@ func attack():
 func special():
 	pass
 
+onready var hitstun_timer = $Timers/HitstunTimer
+
+func _on_hit(_damage:float, knockback:Vector2, knockback_growth:float, hitstun: float, source = null, meta = {}) :
+	damage += _damage
+	velocity = knockback * (weight/100) * knockback_mod * ((damage+1)/100)
+	hitstun_timer.start(hitstun)
+	_set_state(states.hitstun)
+
 ######################
 #Movement variables###
 ######################
@@ -78,6 +88,9 @@ func init_stats():
 	pass
 
 var velocity := Vector2.ZERO
+
+var weight := 100.0
+var knockback_mod := 1
 
 var gravity := 16.0* Global.CELL_HEIGHT
 var terminal_velocity := 6.0 * Global.CELL_HEIGHT
@@ -161,7 +174,7 @@ func _handle_gravity(delta:float):
 			if velocity.y < fastfall_terminal :
 				velocity.y += gravity*delta
 
-var dash_sensitivity = .1
+var input_sensitivity = .1
 
 func _handle_move_input(delta:float) :
 	var dir = sign(move_in.x)
@@ -189,6 +202,8 @@ func _handle_move_input(delta:float) :
 			pass
 		states.run :
 			velocity.x -= sign(velocity.x - run_speed*dir)*delta*ground_accel
+		states.grounded :
+			velocity.x = 0
 	
 	if grounded and dir != 0 : facing = dir
 
@@ -222,6 +237,9 @@ func _set_state(new_state) :
 
 onready var landing_lag_timer = $Timers/LandingTimer
 onready var dash_timer = $Timers/DashTimer
+onready var tech_timer = $Timers/TechTimer
+var tech_window = .1
+
 
 func _get_transition(delta:float):
 	
@@ -230,6 +248,33 @@ func _get_transition(delta:float):
 		var dir = sign(move_in.x)
 		
 		match state:
+			states.grounded :
+				if !tech_timer.is_stopped() :
+					if Input.is_action_pressed(input_prefix+ "shield") && !shield_timer.is_stopped() :
+						if move_in.x > input_sensitivity :
+							velocity.x = 500
+							return states.slide
+							pass #roll right
+						elif move_in.x < -input_sensitivity :
+							velocity.x = 500
+							return states.slide
+							pass #roll left
+						else :
+							velocity.x = 0
+							return states.slide
+							pass #tech in place
+				else :
+					if move_in.x > input_sensitivity :
+						velocity.x = 500
+						return states.slide
+						pass #roll right
+					if move_in.x < -input_sensitivity :
+						velocity.x = 500
+						return states.slide
+						pass #roll left
+			states.hitstun :
+				if hitstun_timer.is_stopped() :
+					return states.slide
 			states.land :
 				if landing_lag_timer.is_stopped() :
 					var v = abs(velocity.x)
@@ -242,6 +287,7 @@ func _get_transition(delta:float):
 			states.jump, states.fall, states.fastfall, states.air_attack :
 				return states.land
 			states.helpless_fall :
+				tech_timer.start()
 				return states.grounded
 			states.dash :
 				if dash_timer.is_stopped():
@@ -250,7 +296,7 @@ func _get_transition(delta:float):
 					return states.dash
 			states.run, states.walk, states.stand:
 				if dir != 0 : 
-					if move_strength_x > dash_sensitivity :
+					if move_strength_x > input_sensitivity :
 						return states.dash
 					elif state == states.stand :
 						return states.walk
@@ -258,7 +304,7 @@ func _get_transition(delta:float):
 					return states.slide
 			states.slide :
 				if dir != 0 : 
-					if move_strength_x > dash_sensitivity :
+					if move_strength_x > input_sensitivity :
 						return states.dash
 					elif states.stand :
 						return states.walk
@@ -266,6 +312,9 @@ func _get_transition(delta:float):
 					return states.stand
 	else :
 		match state :
+			states.hitstun :
+				if hitstun_timer.is_stopped() :
+					return states.helpless_fall
 			states.fall :
 				if move_in.y > .25 :
 					velocity.y = fastfall_terminal

@@ -41,7 +41,7 @@ var default_kb = {
 	"grab" : [KEY_F],
 	"jump" : [KEY_SPACE],
 	"short_jump" : [KEY_H],
-	"shield" : [KEY_SHIFT],
+	"shield" : [KEY_CONTROL],
 	"start" : [KEY_ESCAPE],
 	"deadzone" : .05
 #	"pad" : {"up": [1,-1], "down": [1, 1], "left": [0,-1], "right": [0, 1]},
@@ -81,10 +81,8 @@ func key_helper_axis(prefix, device, action, action_name, deadzone = .05):
 		key.scancode = input
 		InputMap.action_add_event(prefix+action_name, key)
 
-
 func set_ingame_controls(player_number : int, device : int, actions = default_gc) :
 	var prefix = player_format % player_number
-	
 	if actions["format"] == "controller" :
 		axis_helper(prefix, device, actions["move"], "move", actions["deadzone"])
 		axis_helper(prefix, device, actions["tilt"], "tilt", actions["deadzone"])

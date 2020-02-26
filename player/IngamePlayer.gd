@@ -9,6 +9,8 @@ var player_character : PackedScene
 var tap_jump = false
 var tap_dash = false
 
+var damage := 0.0
+
 var live_character : Character
 
 var lives : int = 3
@@ -62,7 +64,7 @@ var player_format = "p%s_"
 
 
 
-func set_controls(scheme = []) :
+func set_controls(scheme = InputScheme.default_kb) :
 	var prefix = player_format % player_number
 	for action in InputMap.get_actions() :
 		if prefix in str(action) :
@@ -71,7 +73,7 @@ func set_controls(scheme = []) :
 	if player_profile :
 		InputScheme.set_ingame_controls(player_number, device, player_profile.control_scheme)
 	else :
-		InputScheme.set_ingame_controls(player_number, device)
+		InputScheme.set_ingame_controls(player_number, device, scheme)
 
 
 func die():
@@ -94,3 +96,7 @@ func spawn():
 
 func connect_char():
 	pass
+
+
+func _on_UseKeyboard_pressed():
+	pass # Replace with function body.

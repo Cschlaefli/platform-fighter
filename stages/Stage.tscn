@@ -1,16 +1,20 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://stages/TestTiles.tres" type="TileSet" id=1]
 [ext_resource path="res://stages/PlatformM.tscn" type="PackedScene" id=2]
 [ext_resource path="res://player/IngamePlayer.tscn" type="PackedScene" id=3]
 [ext_resource path="res://stages/Debug.gd" type="Script" id=4]
 [ext_resource path="res://stages/DeathZone.gd" type="Script" id=5]
+[ext_resource path="res://characters/Hurtbox.tscn" type="PackedScene" id=6]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 532.715, 25 )
 
 [sub_resource type="RectangleShape2D" id=2]
 extents = Vector2( 25, 500 )
+
+[sub_resource type="CircleShape2D" id=3]
+radius = 31.7547
 
 [node name="Stage" type="Node2D"]
 script = null
@@ -78,5 +82,13 @@ script = null
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="BlastZone/Death"]
 position = Vector2( 0, 500 )
 shape = SubResource( 1 )
+script = null
+
+[node name="Hurtbox" parent="." instance=ExtResource( 6 )]
+collision_mask = 512
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2( 1.32684, 161.991 )
+shape = SubResource( 3 )
 script = null
 [connection signal="body_entered" from="BlastZone/Death" to="BlastZone/Death" method="_on_Death_body_entered"]
