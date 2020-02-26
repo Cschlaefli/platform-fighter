@@ -109,4 +109,7 @@ text = "lavel"
 script = null
 
 [node name="Hitbox" parent="." instance=ExtResource( 3 )]
+
+[node name="AnimatedSprite" type="AnimatedSprite" parent="."]
+script = null
 [connection signal="hit" from="Hitbox" to="." method="_on_hit"]

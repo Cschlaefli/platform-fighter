@@ -56,8 +56,11 @@ func _unhandled_input(event):
 	if event.is_action_pressed(input_prefix + "grab"):
 		grab()
 	if event.is_action_pressed(input_prefix + "shield"):
-		shield_timer.start(tech_input_window)
+		if shield_timer.is_stopped() :
+			shield_timer.start(tech_shield_input_window)
 		shield()
+
+var tech_shield_input_window = 20
 
 var not_jumpcancelable
 
@@ -136,6 +139,7 @@ var intangible = false
 ########################################
 
 func _ready():
+	Engine.time_scale = 1
 	init_stats()
 	_add_states()
 	not_jumpcancelable = [states.tech, states.grounded, states.roll_forward, states.roll_back, states.hitstun]
@@ -167,7 +171,7 @@ func _add_states():
 	_add_state("getup_attack")
 
 func _state_logic(delta:float):
-	delta *= Engine.time_scale
+#	delta *= Engine.time_scale
 	_check_invuln()
 	_check_grounded()
 	_handle_gravity(delta)
@@ -181,24 +185,17 @@ func _check_invuln():
 	else :
 		$Hitbox.set_collision_layer_bit(hitbool, true)
 	if intangible :
-		modulate = Color.red
+#		modulate = Color.red
 		set_collision_layer_bit(4, false)
 		set_collision_mask_bit(4, false)
 	else :
 		set_collision_mask_bit(4, true)
 		set_collision_layer_bit(4, true)
-	if !intangible and !invulnerable :
+	if !invulnerable :
 		modulate = Color.white
 
 func _check_grounded() :
 	grounded = $GroundCheck.is_colliding()
-#	if !$GroundCheck.is_colliding() :
-#		if $Timers/CayoteTimer.time_left > 0:
-#			grounded = true
-#		else :
-#			grounded = false
-#	else :
-#		grounded = true
 
 func _handle_gravity(delta:float):
 	match state :
@@ -210,6 +207,7 @@ func _handle_gravity(delta:float):
 				velocity.y += gravity*delta
 
 var input_sensitivity = .1
+var strong_input_sensitivity = .2
 
 func _handle_move_input(delta:float) :
 	var dir = sign(move_in.x)
@@ -221,7 +219,7 @@ func _handle_move_input(delta:float) :
 		set_collision_mask_bit(1, true)
 	
 	match state :
-		states.stand :
+		states.stand, states.crouch :
 			velocity.x = 0
 		states.walk :
 			velocity.x -= sign(velocity.x - walk_speed*dir)*delta*ground_accel
@@ -241,6 +239,7 @@ func _handle_move_input(delta:float) :
 			velocity.x = 0
 	
 	if grounded and dir != 0 : facing = dir
+	animations.flip_h = !facing == 1
 
 func _apply_movement(delta:float):
 	move_and_slide(velocity, Vector2.UP)
@@ -273,13 +272,15 @@ func _set_state(new_state) :
 onready var landing_lag_timer = $Timers/LandingTimer
 onready var dash_timer = $Timers/DashTimer
 onready var tech_timer = $Timers/TechTimer
-var tech_window = .1
 
 func roll_helper(dir) :
 	if sign(dir) == facing :
 		return states.roll_forward
 	else :
 		return states.roll_back
+
+func crouch_check() :
+	return abs(move_in.x) < input_sensitivity and move_in.y > input_sensitivity
 
 func _get_transition(delta:float):
 	if grounded :
@@ -331,6 +332,7 @@ func _get_transition(delta:float):
 			states.land :
 				if landing_lag_timer.is_stopped() :
 					var v = abs(velocity.x)
+					if crouch_check(): return states.crouch
 					if v >= walk_speed *.5 :
 						return states.run
 					elif v > 30 : 
@@ -343,25 +345,31 @@ func _get_transition(delta:float):
 				tech_timer.start(tech_input_window)
 				return states.grounded
 			states.dash :
+				if crouch_check(): return states.crouch
 				if dash_timer.is_stopped():
 					return states.run
 				if dir != 0 and dir != sign(velocity.x) :
 					return states.dash
 			states.run, states.walk, states.stand:
+				if crouch_check(): return states.crouch
 				if dir != 0 : 
-					if move_strength_x > input_sensitivity :
+					if move_strength_x > strong_input_sensitivity :
 						return states.dash
 					elif state == states.stand :
 						return states.walk
 				elif abs(velocity.x) > 10 : 
 					return states.slide
 			states.slide :
+				if crouch_check(): return states.crouch
 				if dir != 0 : 
-					if move_strength_x > input_sensitivity :
+					if move_strength_x > strong_input_sensitivity :
 						return states.dash
 					elif states.stand :
 						return states.walk
 				elif abs(velocity.x) < 10 :
+					return states.stand
+			states.crouch :
+				if move_in.y < input_sensitivity :
 					return states.stand
 	else :
 		intangible = true
@@ -409,19 +417,35 @@ var roll_forward_time = 17
 var roll_back_time = 17
 var tech_time = 3
 
+onready var animations := $AnimatedSprite
+
 func _enter_state(new_state, old_state):
+	animations.stop()
 	match new_state:
+		states.dash :
+			animations.play("dash")
+		states.fall, states.helpless_fall :
+			animations.play("fall")
+		states.run, states.walk :
+			animations.play("walk")
+		states.stand, states.slide :
+			animations.play("stand")
+		states.crouch :
+			animations.play("crouch")
 		states.roll_forward :
+			animations.play("crouch")
 			invulnerable = true
 			intangible = true
 			velocity.x = roll_back_distance * (60/roll_forward_time) * facing
 			roll_timer.start(roll_forward_time)
 		states.roll_back :
+			animations.play("crouch")
 			invulnerable = true
 			intangible = true
 			velocity.x = roll_back_distance * (60/roll_back_time) * facing
 			roll_timer.start(roll_back_time)
 		states.tech :
+			animations.play("stand")
 			invulnerable = true
 			intangible = true
 			velocity.x = 0
@@ -430,6 +454,7 @@ func _enter_state(new_state, old_state):
 			pass
 		states.jump :
 			if grounded :
+				animations.play("jump")
 				$GroundCheck.enabled = false
 				if Input.is_action_pressed(input_prefix + "jump") :
 					velocity.y = -sqrt(2*gravity* jump_height * Global.CELL_HEIGHT *Engine.time_scale)
@@ -437,6 +462,7 @@ func _enter_state(new_state, old_state):
 					velocity.y = -sqrt(2*gravity* short_jump_height * Global.CELL_HEIGHT * Engine.time_scale)
 				$Timers/JumpTimer.start(6)
 			elif jumps > 0 and $Timers/JumpTimer.time_left == 0 :
+				animations.play("jump")
 				jumps -= 1
 				velocity.y = -sqrt(2*gravity*double_jump_height * Global.CELL_HEIGHT) *Engine.time_scale
 			else :

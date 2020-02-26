@@ -1,8 +1,20 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://characters/Cloner/Cloner.gd" type="Script" id=1]
 [ext_resource path="res://characters/Character.tscn" type="PackedScene" id=2]
-[ext_resource path="res://assets/Spritesheet/spritesheet_players.png" type="Texture2D" id=3]
+[ext_resource path="res://assets/PNG/Players/Player Blue/playerBlue_walk5.png" type="Texture2D" id=3]
+[ext_resource path="res://assets/PNG/Players/Player Blue/playerBlue_walk4.png" type="Texture2D" id=4]
+[ext_resource path="res://assets/PNG/Players/Player Blue/playerBlue_walk3.png" type="Texture2D" id=5]
+[ext_resource path="res://assets/PNG/Players/Player Blue/playerBlue_stand.png" type="Texture2D" id=6]
+[ext_resource path="res://assets/PNG/Players/Player Blue/playerBlue_walk2.png" type="Texture2D" id=7]
+[ext_resource path="res://assets/PNG/Players/Player Blue/playerBlue_duck.png" type="Texture2D" id=8]
+[ext_resource path="res://assets/PNG/Players/Player Blue/playerBlue_walk1.png" type="Texture2D" id=9]
+[ext_resource path="res://assets/PNG/Players/Player Blue/playerBlue_up2.png" type="Texture2D" id=10]
+[ext_resource path="res://assets/PNG/Players/Player Blue/playerBlue_fall.png" type="Texture2D" id=11]
+[ext_resource path="res://assets/PNG/Players/Player Blue/playerBlue_up3.png" type="Texture2D" id=12]
+[ext_resource path="res://assets/PNG/Players/Player Blue/playerBlue_up1.png" type="Texture2D" id=13]
+[ext_resource path="res://assets/PNG/Players/Player Blue/playerBlue_swim1.png" type="Texture2D" id=14]
+[ext_resource path="res://assets/PNG/Players/Player Blue/playerBlue_swim2.png" type="Texture2D" id=15]
 
 [sub_resource type="CapsuleShape2D" id=1]
 radius = 5.0
@@ -14,9 +26,38 @@ radius = 12.0461
 [sub_resource type="CircleShape2D" id=3]
 radius = 14.7032
 
-[sub_resource type="AtlasTexture" id=4]
-atlas = ExtResource( 3 )
-region = Rect2( 115, 1, 42, 47 )
+[sub_resource type="SpriteFrames" id=4]
+animations = [ {
+"frames": [ ExtResource( 13 ), ExtResource( 10 ), ExtResource( 12 ) ],
+"loop": false,
+"name": @"jump",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 11 ) ],
+"loop": false,
+"name": @"fall",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 6 ) ],
+"loop": true,
+"name": @"stand",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 6 ), ExtResource( 8 ) ],
+"loop": false,
+"name": @"crouch",
+"speed": 40.0
+}, {
+"frames": [ ExtResource( 9 ), ExtResource( 7 ), ExtResource( 5 ), ExtResource( 4 ), ExtResource( 3 ), ExtResource( 4 ), ExtResource( 7 ), ExtResource( 7 ), ExtResource( 9 ) ],
+"loop": true,
+"name": @"walk",
+"speed": 10.0
+}, {
+"frames": [ ExtResource( 14 ), ExtResource( 15 ) ],
+"loop": true,
+"name": @"dash",
+"speed": 5.0
+} ]
 
 [node name="Cloner" instance=ExtResource( 2 )]
 script = ExtResource( 1 )
@@ -24,7 +65,7 @@ script = ExtResource( 1 )
 [node name="Body" parent="." index="0"]
 shape = SubResource( 1 )
 
-[node name="Abilities" type="Node2D" parent="." index="4"]
+[node name="Attacks" type="Node2D" parent="." index="4"]
 script = null
 
 [node name="Hitbox" parent="." index="5"]
@@ -46,8 +87,6 @@ position = Vector2( -1.16261, 17.7098 )
 shape = SubResource( 2 )
 script = null
 
-[node name="Sprite" type="Sprite" parent="." index="6"]
-position = Vector2( -1.50942, 1.13206 )
-scale = Vector2( 1.03594, 1.29725 )
-texture = SubResource( 4 )
-script = null
+[node name="AnimatedSprite" parent="." index="6"]
+frames = SubResource( 4 )
+animation = @"dash"
