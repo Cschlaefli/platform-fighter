@@ -199,7 +199,7 @@ func _check_grounded() :
 
 func _handle_gravity(delta:float):
 	match state :
-		states.fall, states.jump, states.helpless_fall :
+		states.fall, states.jump, states.helpless_fall, states.hitstun :
 			if velocity.y < terminal_velocity :
 				velocity.y += gravity*delta
 		states.fastfall :
@@ -232,6 +232,8 @@ func _handle_move_input(delta:float) :
 			var accel = air_accel if diff != dir and dir != 0 else air_friction
 			velocity.x -= sign(velocity.x - air_speed*dir)*delta*accel
 		states.hitstun :
+			#DI here
+			velocity += move_in.normalized()* delta * 100
 			pass
 		states.run :
 			velocity.x -= sign(velocity.x - run_speed*dir)*delta*ground_accel
