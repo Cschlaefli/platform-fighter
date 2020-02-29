@@ -2,7 +2,6 @@ extends KinematicBody2D
 class_name Character
 
 var character_name := "Test"
-var damage := .0
 var input_prefix = ""
 var tap_jump = false
 var tap_dash = false
@@ -83,8 +82,12 @@ func special():
 
 onready var hitstun_timer = $Timers/HitstunTimer
 
+var fixed_damage := true
+var damage := 50.0
+
 func _on_hit(_damage:float, knockback:Vector2, knockback_growth:float, hitstun: float, source = null, meta = {}) :
-	damage += _damage
+	if !fixed_damage :
+		damage += _damage
 	velocity = knockback * (weight/100) * knockback_mod * ((damage+1)/100)
 	hitstun_timer.start(hitstun)
 	_set_state(states.hitstun)
